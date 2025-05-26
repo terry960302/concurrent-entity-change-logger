@@ -44,17 +44,18 @@
 ```
 
 ##  How It Works
-Hibernate 이벤트(PostInsert, PostUpdate, PostDelete)를 가로채서 엔티티 변경사항 감지
 
-엔티티명, ID, 변경 필드, 요청자 등 메타데이터로 LogEntry 생성
+1. Hibernate 이벤트(PostInsert, PostUpdate, PostDelete)를 가로채서 엔티티 변경사항 감지
 
-내부 BlockingQueue에 enqueue
+2. 엔티티명, ID, 변경 필드, 요청자 등 메타데이터로 LogEntry 생성
 
-ThreadPoolExecutor가 백그라운드에서 로그를 배치로 소비
+3. 내부 BlockingQueue에 enqueue
 
-JdbcTemplate.batchUpdate()로 빠르게 저장
+4. ThreadPoolExecutor가 백그라운드에서 로그를 배치로 소비
 
-일정 주기마다 flush (@Scheduled) + 종료 시 shutdown hook 등록
+5. JdbcTemplate.batchUpdate()로 빠르게 저장
+
+6. 일정 주기마다 flush (@Scheduled) + 종료 시 shutdown hook 등록
 
 ##  Performance Expectations
 | 구성                      | TPS 기준 (보수적)                |
