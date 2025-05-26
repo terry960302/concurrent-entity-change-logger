@@ -1,4 +1,4 @@
-package com.pandaterry.concurrent_entity_change_logger.monitoring.utils;
+package com.pandaterry.concurrent_entity_change_logger.monitoring.service;
 
 import org.springframework.stereotype.Component;
 

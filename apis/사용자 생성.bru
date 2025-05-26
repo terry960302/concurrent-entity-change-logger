@@ -1,0 +1,19 @@
+meta {
+  name: 사용자 생성
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/api/test/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "부하테스트",
+    "email": "load1@test.com",
+    "phoneNumber": "010-0000-0000"
+  }
+}

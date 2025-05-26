@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.pandaterry.concurrent_entity_change_logger.core.entity.LogEntry;
 import com.pandaterry.concurrent_entity_change_logger.core.repository.LogEntryRepository;
 import com.pandaterry.concurrent_entity_change_logger.monitoring.constants.MetricNames;
-import com.pandaterry.concurrent_entity_change_logger.monitoring.utils.EntityChangeMetrics;
+import com.pandaterry.concurrent_entity_change_logger.monitoring.service.EntityChangeMetrics;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
@@ -33,22 +33,20 @@ public class EntityChangeLogger {
     private final Queue<LogEntry> batchQueue = new ConcurrentLinkedQueue<>();
     private final ObjectMapper objectMapper;
     private final int batchSize = 1000;
-
-    @Autowired
-    private EntityChangeMetrics metrics;
-
-    @Autowired
-    private MeterRegistry meterRegistry;
+    private final MeterRegistry meterRegistry;
+    private final EntityChangeMetrics metrics;
+    private final LogEntryRepository logEntryRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Autowired
-    private LogEntryRepository logEntryRepository;
+    public EntityChangeLogger(MeterRegistry meterRegistry,
+                              EntityChangeMetrics metrics,
+                              LogEntryRepository logEntryRepository) {
+        this.meterRegistry = meterRegistry;
+        this.metrics = metrics;
+        this.logEntryRepository = logEntryRepository;
 
-    private Counter processedLogCounter;
-
-    public EntityChangeLogger() {
         // 큐 게이지 등록
         Gauge.builder(MetricNames.LOG_PROCESSOR_QUEUE_SIZE, logQueue, BlockingQueue::size)
                 .description("Current size of the log queue")
@@ -98,7 +96,6 @@ public class EntityChangeLogger {
             try {
                 LogEntry entry = logQueue.poll(100, TimeUnit.MILLISECONDS);
                 if (entry != null) {
-                    processedLogCounter.increment();
                     batchQueue.add(entry);
                     if (batchQueue.size() >= batchSize) {
                         flushBatch();
@@ -125,7 +122,7 @@ public class EntityChangeLogger {
         }
     }
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 1000)
     public void scheduledFlush() {
         flushBatch();
     }

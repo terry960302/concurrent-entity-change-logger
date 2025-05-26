@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "concurrent-entity-change-logger-api",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
