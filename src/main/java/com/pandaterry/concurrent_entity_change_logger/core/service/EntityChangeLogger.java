@@ -1,9 +1,16 @@
-package com.pandaterry.concurrent_entity_change_tracker.service;
+package com.pandaterry.concurrent_entity_change_logger.core.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.pandaterry.concurrent_entity_change_tracker.entity.LogEntry;
-import com.pandaterry.concurrent_entity_change_tracker.repository.LogEntryRepository;
+import com.pandaterry.concurrent_entity_change_logger.core.entity.LogEntry;
+import com.pandaterry.concurrent_entity_change_logger.core.repository.LogEntryRepository;
+import com.pandaterry.concurrent_entity_change_logger.monitoring.constants.MetricNames;
+import com.pandaterry.concurrent_entity_change_logger.monitoring.utils.EntityChangeMetrics;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer.Sample;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceContext;
@@ -27,13 +34,30 @@ public class EntityChangeLogger {
     private final ObjectMapper objectMapper;
     private final int batchSize = 1000;
 
+    @Autowired
+    private EntityChangeMetrics metrics;
+
+    @Autowired
+    private MeterRegistry meterRegistry;
+
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
     private LogEntryRepository logEntryRepository;
 
+    private Counter processedLogCounter;
+
     public EntityChangeLogger() {
+        // 큐 게이지 등록
+        Gauge.builder(MetricNames.LOG_PROCESSOR_QUEUE_SIZE, logQueue, BlockingQueue::size)
+                .description("Current size of the log queue")
+                .register(meterRegistry);
+
+        Gauge.builder(MetricNames.LOG_PROCESSOR_BATCH_QUEUE_SIZE, batchQueue, Queue::size)
+                .description("Current size of the batch queue")
+                .register(meterRegistry);
+
         this.logProcessorPool = Executors.newFixedThreadPool(5);
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -45,6 +69,7 @@ public class EntityChangeLogger {
     }
 
     public void logChange(Object oldEntity, Object newEntity, String operation) {
+        Sample sample = metrics.startProcessingTimer();
         try {
             String entityName = (newEntity != null) ? newEntity.getClass().getSimpleName()
                     : oldEntity.getClass().getSimpleName();
@@ -59,8 +84,12 @@ public class EntityChangeLogger {
                 // 큐가 가득 찼을 경우 처리 로직 추가
                 System.err.println("Log queue is full, skipping log entry");
             }
+            metrics.recordProcessedLog();
         } catch (Exception e) {
             e.printStackTrace();
+            metrics.recordError();
+        } finally {
+            metrics.stopProcessingTimer(sample);
         }
     }
 
@@ -69,6 +98,7 @@ public class EntityChangeLogger {
             try {
                 LogEntry entry = logQueue.poll(100, TimeUnit.MILLISECONDS);
                 if (entry != null) {
+                    processedLogCounter.increment();
                     batchQueue.add(entry);
                     if (batchQueue.size() >= batchSize) {
                         flushBatch();

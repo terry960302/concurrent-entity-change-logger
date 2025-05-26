@@ -1,4 +1,4 @@
-# Thread-Safe Entity Change Logger (No External Dependencies)
+# Concurrent Entity Change Logger (No External Dependencies)
 
 > **멀티스레드 환경에서 JPA 엔티티 변경 사항을 감지하고, 외부 인프라 없이 안전하게 비동기 저장하는 구조**  
 > Logging without Kafka / Redis / Elastic. Built with pure Java & Spring.

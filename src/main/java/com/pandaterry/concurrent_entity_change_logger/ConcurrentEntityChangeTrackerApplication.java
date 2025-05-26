@@ -1,4 +1,4 @@
-package com.pandaterry.concurrent_entity_change_tracker;
+package com.pandaterry.concurrent_entity_change_logger;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

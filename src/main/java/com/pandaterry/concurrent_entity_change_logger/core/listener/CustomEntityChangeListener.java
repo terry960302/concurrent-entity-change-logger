@@ -1,11 +1,13 @@
-package com.pandaterry.concurrent_entity_change_tracker.service;
+package com.pandaterry.concurrent_entity_change_logger.core.listener;
 
-import com.pandaterry.concurrent_entity_change_tracker.annotation.ExcludeFromLogging;
-import com.pandaterry.concurrent_entity_change_tracker.config.EntityLoggingConfig;
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.pandaterry.concurrent_entity_change_logger.core.annotation.ExcludeFromLogging;
+import com.pandaterry.concurrent_entity_change_logger.core.config.EntityLoggingConfig;
+import com.pandaterry.concurrent_entity_change_logger.core.service.EntityChangeLogger;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

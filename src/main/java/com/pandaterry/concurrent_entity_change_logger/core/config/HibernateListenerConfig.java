@@ -1,6 +1,5 @@
-package com.pandaterry.concurrent_entity_change_tracker.config;
+package com.pandaterry.concurrent_entity_change_logger.core.config;
 
-import com.pandaterry.concurrent_entity_change_tracker.service.CustomEntityChangeListener;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
@@ -8,6 +7,8 @@ import org.hibernate.event.spi.EventType;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.pandaterry.concurrent_entity_change_logger.core.listener.CustomEntityChangeListener;
 
 @Configuration
 @RequiredArgsConstructor
