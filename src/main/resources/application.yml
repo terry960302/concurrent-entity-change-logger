@@ -15,11 +15,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus,health,metrics
+        include: prometheus,health,metrics,info
+  endpoint:
+    prometheus:
+      enabled: true
   metrics:
     tags:
       application: concurrent-entity-change-logger
-  prometheus:
-    metrics:
-      export:
+    export:
+      prometheus:
         enabled: true
+        descriptions: true
+        step: PT1M

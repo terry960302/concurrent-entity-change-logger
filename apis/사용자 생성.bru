@@ -12,8 +12,22 @@ post {
 
 body:json {
   {
-    "name": "부하테스트",
-    "email": "load1@test.com",
+    "name": "{{name}}",
+    "email": "{{email}}",
     "phoneNumber": "010-0000-0000"
   }
+}
+
+script:pre-request {
+  // pre-request script
+  const random = Math.floor(Math.random() * 1000000);
+  email = `load${random}@test.com`;
+  name = `부하 테스터${random}`
+  
+  bru.setVar("email",email)
+  bru.setVar("name", name)
+}
+
+tests {
+  1000
 }
