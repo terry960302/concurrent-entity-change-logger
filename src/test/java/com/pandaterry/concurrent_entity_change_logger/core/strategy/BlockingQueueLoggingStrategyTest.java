@@ -2,12 +2,16 @@ package com.pandaterry.concurrent_entity_change_logger.core.strategy;
 
 import com.pandaterry.concurrent_entity_change_logger.core.entity.LogEntry;
 import com.pandaterry.concurrent_entity_change_logger.core.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.factory.LogEntryFactory;
 import com.pandaterry.concurrent_entity_change_logger.core.repository.LogEntryRepository;
+import com.pandaterry.concurrent_entity_change_logger.core.tracker.EntityChangeTracker;
+import com.pandaterry.concurrent_entity_change_logger.core.util.EntityLoggingCondition;
 import jakarta.persistence.Id;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -18,6 +22,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,11 +34,22 @@ class BlockingQueueLoggingStrategyTest {
     @Mock
     private LogEntryRepository logEntryRepository;
 
+    @Mock
+    private EntityChangeTracker changeTracker;
+
+    @Mock
+    private EntityLoggingCondition loggingCondition;
+
+    @Mock
+    private LogEntryFactory logEntryFactory;
+
     private BlockingQueueLoggingStrategy strategy;
 
     @BeforeEach
     void setUp() {
-        strategy = new BlockingQueueLoggingStrategy(logEntryRepository);
+        strategy = new BlockingQueueLoggingStrategy(logEntryRepository, null, changeTracker, loggingCondition,
+                logEntryFactory);
+        when(loggingCondition.shouldLogChanges(any())).thenReturn(true);
     }
 
     @Test
@@ -41,6 +57,15 @@ class BlockingQueueLoggingStrategyTest {
         // given
         TestEntity entity = new TestEntity(1L, "test");
         TestEntity newEntity = new TestEntity(1L, "updated");
+        LogEntry expectedEntry = LogEntry.builder()
+                .entityName("TestEntity")
+                .entityId("1")
+                .operation(OperationType.UPDATE.name())
+                .changes(Map.of("name", "test -> updated"))
+                .build();
+
+        when(logEntryFactory.create(entity, newEntity, OperationType.UPDATE))
+                .thenReturn(expectedEntry);
 
         // when
         strategy.logChange(entity, newEntity, OperationType.UPDATE);
@@ -49,9 +74,22 @@ class BlockingQueueLoggingStrategyTest {
         BlockingQueue<LogEntry> logQueue = (BlockingQueue<LogEntry>) ReflectionTestUtils.getField(strategy, "logQueue");
         assertThat(logQueue).isNotEmpty();
         LogEntry entry = logQueue.poll();
-        assertThat(entry.getEntityName()).isEqualTo("TestEntity");
-        assertThat(entry.getEntityId()).isEqualTo("1");
-        assertThat(entry.getOperation()).isEqualTo(OperationType.UPDATE.name());
+        assertThat(entry).isEqualTo(expectedEntry);
+    }
+
+    @Test
+    void logChange_ShouldNotLogWhenConditionIsFalse() {
+        // given
+        TestEntity entity = new TestEntity(1L, "test");
+        TestEntity newEntity = new TestEntity(1L, "updated");
+        when(loggingCondition.shouldLogChanges(any())).thenReturn(false);
+
+        // when
+        strategy.logChange(entity, newEntity, OperationType.UPDATE);
+
+        // then
+        BlockingQueue<LogEntry> logQueue = (BlockingQueue<LogEntry>) ReflectionTestUtils.getField(strategy, "logQueue");
+        assertThat(logQueue).isEmpty();
     }
 
     @Test

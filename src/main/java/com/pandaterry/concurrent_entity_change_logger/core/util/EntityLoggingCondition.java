@@ -22,7 +22,7 @@ public class EntityLoggingCondition {
         excludedEntities = entities;
     }
 
-    public static boolean shouldLogChanges(Object entity) {
+    public boolean shouldLogChanges(Object entity) {
         if (!enableGlobalLogging)
             return false;
 

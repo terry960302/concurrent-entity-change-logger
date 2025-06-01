@@ -2,11 +2,15 @@ package com.pandaterry.concurrent_entity_change_logger.integration;
 
 import com.pandaterry.concurrent_entity_change_logger.core.entity.LogEntry;
 import com.pandaterry.concurrent_entity_change_logger.core.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.factory.LogEntryFactory;
 import com.pandaterry.concurrent_entity_change_logger.core.repository.LogEntryRepository;
 import com.pandaterry.concurrent_entity_change_logger.core.strategy.BlockingQueueLoggingStrategy;
+import com.pandaterry.concurrent_entity_change_logger.core.tracker.EntityChangeTracker;
+import com.pandaterry.concurrent_entity_change_logger.core.util.EntityLoggingCondition;
 import com.pandaterry.concurrent_entity_change_logger.monitoring.service.EntityChangeMetrics;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.Id;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,13 +32,23 @@ class LoggingStrategyIntegrationTest {
     @Autowired
     private LogEntryRepository logEntryRepository;
 
+    @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
+    private EntityChangeTracker changeTracker;
+
+    @Autowired
+    private EntityLoggingCondition loggingCondition;
+
+    @Autowired
+    private LogEntryFactory logEntryFactory;
+
     private BlockingQueueLoggingStrategy strategy;
 
     @BeforeEach
     void setUp() {
-        MeterRegistry meterRegistry = new SimpleMeterRegistry();
-        EntityChangeMetrics metrics = new EntityChangeMetrics(meterRegistry);
-        strategy = new BlockingQueueLoggingStrategy(logEntryRepository);
+        strategy = new BlockingQueueLoggingStrategy(logEntryRepository, entityManager, changeTracker, loggingCondition, logEntryFactory);
     }
 
     @Test

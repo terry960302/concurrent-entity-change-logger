@@ -9,7 +9,7 @@ import java.util.Map;
 import com.pandaterry.concurrent_entity_change_logger.core.annotation.ExcludeFromLogging;
 
 @Entity
-@Table(name = "log_entry_tb")
+@Table(name = "log_entries")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -17,7 +17,7 @@ import com.pandaterry.concurrent_entity_change_logger.core.annotation.ExcludeFro
 @ExcludeFromLogging
 public class LogEntry {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE) 
     private Long id;
 
     @Column

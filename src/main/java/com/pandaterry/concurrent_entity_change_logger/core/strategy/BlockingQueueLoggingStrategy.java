@@ -4,8 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.pandaterry.concurrent_entity_change_logger.core.entity.LogEntry;
 import com.pandaterry.concurrent_entity_change_logger.core.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.factory.LogEntryFactory;
 import com.pandaterry.concurrent_entity_change_logger.core.repository.LogEntryRepository;
+import com.pandaterry.concurrent_entity_change_logger.core.tracker.EntityChangeTracker;
+import com.pandaterry.concurrent_entity_change_logger.core.util.EntityLoggingCondition;
 import com.pandaterry.concurrent_entity_change_logger.monitoring.annotation.LoggingMetrics;
+
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,9 +29,19 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
     private final int batchSize;
     private final LogEntryRepository logEntryRepository;
     private final ObjectMapper objectMapper;
+    private final EntityManager entityManager;
+    private final EntityChangeTracker changeTracker;
+    private final EntityLoggingCondition loggingCondition;
+    private final LogEntryFactory logEntryFactory;
 
-    public BlockingQueueLoggingStrategy(LogEntryRepository logEntryRepository) {
+    public BlockingQueueLoggingStrategy(LogEntryRepository logEntryRepository, EntityManager entityManager,
+            EntityChangeTracker changeTracker, EntityLoggingCondition loggingCondition,
+            LogEntryFactory logEntryFactory) {
         this.logEntryRepository = logEntryRepository;
+        this.entityManager = entityManager;
+        this.changeTracker = changeTracker;
+        this.loggingCondition = loggingCondition;
+        this.logEntryFactory = logEntryFactory;
         this.logQueue = new LinkedBlockingQueue<>(100000);
         this.batchQueue = new ConcurrentLinkedQueue<>();
         this.batchSize = 10;
@@ -43,23 +58,11 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
     @Override
     @LoggingMetrics({ LoggingMetrics.MetricType.PROCESSING_TIME, LoggingMetrics.MetricType.ERROR_COUNT })
     public void logChange(Object oldEntity, Object newEntity, OperationType operation) {
-        try {
-            LogEntry entry = createLogEntry(oldEntity, newEntity, operation);
-            offerToQueue(entry);
-        } catch (Exception e) {
-            log.error("Error while logging change", e);
+        if (!loggingCondition.shouldLogChanges(oldEntity != null ? oldEntity : newEntity)) {
+            return;
         }
-    }
-
-    private LogEntry createLogEntry(Object oldEntity, Object newEntity, OperationType operation) {
-        String entityName = getEntityName(oldEntity, newEntity);
-        String entityId = getEntityId(oldEntity, newEntity);
-
-        return LogEntry.builder()
-                .entityName(entityName)
-                .entityId(entityId)
-                .operation(operation.name())
-                .build();
+        LogEntry entry = logEntryFactory.create(oldEntity, newEntity, operation);
+        offerToQueue(entry);
     }
 
     private String getEntityName(Object oldEntity, Object newEntity) {
@@ -73,20 +76,23 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
         Optional<Field> idField = findIdField(clazz);
 
         if (idField.isPresent()) {
-            try {
-                Field field = idField.get();
-                field.setAccessible(true);
-                if (!field.canAccess(entity)) {
-                    return "Access Error";
-                }
-                Object idValue = field.get(entity);
-                return idValue != null ? idValue.toString() : "null";
-            } catch (IllegalAccessException e) {
-                log.error("Error while accessing entity id", e);
+            Field field = idField.get();
+            field.setAccessible(true);
+            if (!field.canAccess(entity)) {
                 return "Access Error";
             }
+            Object idValue = getFieldValue(field, entity);
+            return idValue != null ? idValue.toString() : "null";
         }
         return "Unknown";
+    }
+
+    private Object getFieldValue(Field field, Object entity) {
+        try {
+            return field.get(entity);
+        } catch (IllegalAccessException e) {
+            return null;
+        }
     }
 
     private Optional<Field> findIdField(Class<?> clazz) {
@@ -103,18 +109,9 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
     @LoggingMetrics({ LoggingMetrics.MetricType.QUEUE_SIZE, LoggingMetrics.MetricType.PROCESSED_COUNT,
             LoggingMetrics.MetricType.ERROR_COUNT })
     private void offerToQueue(LogEntry entry) {
-        try {
-            if (logQueue.remainingCapacity() == 0) {
-                log.error("Log queue is full, skipping log entry");
-                return;
-            }
-            boolean offered = logQueue.offer(entry, 100, TimeUnit.MILLISECONDS);
-            if (!offered) {
-                log.error("Failed to offer log entry to queue");
-            }
-        } catch (Exception e) {
-            log.error("Error while offering to queue", e);
-        }
+        if (logQueue.remainingCapacity() == 0)
+            return;
+        logQueue.offer(entry);
     }
 
     private void processLogs() {
@@ -126,8 +123,6 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            } catch (Exception e) {
-                log.error("Error while processing logs", e);
             }
         }
     }
@@ -139,7 +134,8 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
     @LoggingMetrics({ LoggingMetrics.MetricType.QUEUE_SIZE, LoggingMetrics.MetricType.BATCH_QUEUE_SIZE,
             LoggingMetrics.MetricType.PROCESSED_COUNT, LoggingMetrics.MetricType.ERROR_COUNT })
     private void processLogEntry(LogEntry entry) {
-        if(entry == null) return;
+        if (entry == null)
+            return;
         batchQueue.add(entry);
         if (batchQueue.size() >= batchSize) {
             flushBatch();
@@ -169,10 +165,16 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
 
     @LoggingMetrics({ LoggingMetrics.MetricType.BATCH_QUEUE_SIZE, LoggingMetrics.MetricType.ERROR_COUNT })
     private void saveBatch(List<LogEntry> toSave) {
-        try {
-            logEntryRepository.saveAll(toSave);
-        } catch (Exception e) {
-            log.error("Error while saving batch", e);
+        for (LogEntry entry : toSave) {
+            try {
+                String changesJson = objectMapper.writeValueAsString(entry.getChanges());
+                logEntryRepository.batchInsert(
+                        entry.getEntityName(),
+                        entry.getEntityId(),
+                        entry.getOperation(),
+                        changesJson);
+            } catch (Exception ignored) {
+            }
         }
     }
 
