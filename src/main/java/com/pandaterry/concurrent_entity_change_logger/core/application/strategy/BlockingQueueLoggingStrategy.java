@@ -1,55 +1,51 @@
-package com.pandaterry.concurrent_entity_change_logger.core.strategy;
+package com.pandaterry.concurrent_entity_change_logger.core.application.strategy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.pandaterry.concurrent_entity_change_logger.core.entity.LogEntry;
-import com.pandaterry.concurrent_entity_change_logger.core.enumerated.OperationType;
-import com.pandaterry.concurrent_entity_change_logger.core.factory.LogEntryFactory;
-import com.pandaterry.concurrent_entity_change_logger.core.repository.LogEntryRepository;
-import com.pandaterry.concurrent_entity_change_logger.core.tracker.EntityChangeTracker;
-import com.pandaterry.concurrent_entity_change_logger.core.util.EntityLoggingCondition;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.entity.LogEntry;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.factory.LogEntryFactory;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.respository.LogEntryRepository;
+import com.pandaterry.concurrent_entity_change_logger.core.shared.config.EntityLoggingProperties;
 import com.pandaterry.concurrent_entity_change_logger.monitoring.annotation.LoggingMetrics;
-
-import jakarta.persistence.EntityManager;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.*;
 
 @Slf4j
 @Component
 public class BlockingQueueLoggingStrategy implements LoggingStrategy {
-    private final BlockingQueue<LogEntry> logQueue;
-    private final ExecutorService logProcessorPool;
-    private final ConcurrentLinkedQueue<LogEntry> batchQueue;
-    private final int batchSize;
     private final LogEntryRepository logEntryRepository;
-    private final ObjectMapper objectMapper;
-    private final EntityManager entityManager;
-    private final EntityChangeTracker changeTracker;
-    private final EntityLoggingCondition loggingCondition;
+    private final EntityLoggingProperties loggingProperties;
     private final LogEntryFactory logEntryFactory;
+    private final ObjectMapper objectMapper;
 
-    public BlockingQueueLoggingStrategy(LogEntryRepository logEntryRepository, EntityManager entityManager,
-            EntityChangeTracker changeTracker, EntityLoggingCondition loggingCondition,
+    private BlockingQueue<LogEntry> logQueue;
+    private ExecutorService logProcessorPool;
+    private ConcurrentLinkedQueue<LogEntry> batchQueue;
+
+    public BlockingQueueLoggingStrategy(LogEntryRepository logEntryRepository,
+            EntityLoggingProperties loggingProperties,
             LogEntryFactory logEntryFactory) {
         this.logEntryRepository = logEntryRepository;
-        this.entityManager = entityManager;
-        this.changeTracker = changeTracker;
-        this.loggingCondition = loggingCondition;
+        this.loggingProperties = loggingProperties;
         this.logEntryFactory = logEntryFactory;
-        this.logQueue = new LinkedBlockingQueue<>(100000);
-        this.batchQueue = new ConcurrentLinkedQueue<>();
-        this.batchSize = 10;
-        this.logProcessorPool = Executors.newFixedThreadPool(5);
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    }
 
-        for (int i = 0; i < 5; i++) {
+    @PostConstruct
+    public void init() {
+        this.logQueue = new LinkedBlockingQueue<>(loggingProperties.getStrategy().getQueueSize());
+        this.batchQueue = new ConcurrentLinkedQueue<>();
+        this.logProcessorPool = Executors.newFixedThreadPool(loggingProperties.getStrategy().getThreadPoolSize());
+
+        for (int i = 0; i < loggingProperties.getStrategy().getThreadPoolSize(); i++) {
             logProcessorPool.submit(this::processLogs);
         }
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
@@ -58,52 +54,11 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
     @Override
     @LoggingMetrics({ LoggingMetrics.MetricType.PROCESSING_TIME, LoggingMetrics.MetricType.ERROR_COUNT })
     public void logChange(Object oldEntity, Object newEntity, OperationType operation) {
-        if (!loggingCondition.shouldLogChanges(oldEntity != null ? oldEntity : newEntity)) {
+        if (!loggingProperties.shouldLogChanges(oldEntity != null ? oldEntity : newEntity)) {
             return;
         }
         LogEntry entry = logEntryFactory.create(oldEntity, newEntity, operation);
         offerToQueue(entry);
-    }
-
-    private String getEntityName(Object oldEntity, Object newEntity) {
-        return (newEntity != null) ? newEntity.getClass().getSimpleName()
-                : oldEntity.getClass().getSimpleName();
-    }
-
-    private String getEntityId(Object oldEntity, Object newEntity) {
-        Object entity = newEntity != null ? newEntity : oldEntity;
-        Class<?> clazz = entity.getClass();
-        Optional<Field> idField = findIdField(clazz);
-
-        if (idField.isPresent()) {
-            Field field = idField.get();
-            field.setAccessible(true);
-            if (!field.canAccess(entity)) {
-                return "Access Error";
-            }
-            Object idValue = getFieldValue(field, entity);
-            return idValue != null ? idValue.toString() : "null";
-        }
-        return "Unknown";
-    }
-
-    private Object getFieldValue(Field field, Object entity) {
-        try {
-            return field.get(entity);
-        } catch (IllegalAccessException e) {
-            return null;
-        }
-    }
-
-    private Optional<Field> findIdField(Class<?> clazz) {
-        Optional<Field> idField = Arrays.stream(clazz.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(jakarta.persistence.Id.class))
-                .findFirst();
-
-        if (!idField.isPresent() && clazz.getSuperclass() != null) {
-            return findIdField(clazz.getSuperclass());
-        }
-        return idField;
     }
 
     @LoggingMetrics({ LoggingMetrics.MetricType.QUEUE_SIZE, LoggingMetrics.MetricType.PROCESSED_COUNT,
@@ -137,7 +92,7 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
         if (entry == null)
             return;
         batchQueue.add(entry);
-        if (batchQueue.size() >= batchSize) {
+        if (batchQueue.size() >= loggingProperties.getJpaBatchSize()) {
             flushBatch();
         }
     }
@@ -156,7 +111,7 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
         LogEntry entry;
         while ((entry = batchQueue.poll()) != null) {
             toSave.add(entry);
-            if (toSave.size() >= batchSize) {
+            if (toSave.size() >= loggingProperties.getJpaBatchSize()) {
                 break;
             }
         }
@@ -178,7 +133,7 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
         }
     }
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelayString = "${logging.strategy.flush-interval:5000}")
     @Override
     public void flush() {
         flushBatch();

@@ -1,4 +1,4 @@
-package com.pandaterry.concurrent_entity_change_logger.core.entity;
+package com.pandaterry.concurrent_entity_change_logger.core.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.Map;
-import com.pandaterry.concurrent_entity_change_logger.core.annotation.ExcludeFromLogging;
+import com.pandaterry.concurrent_entity_change_logger.core.shared.annotation.ExcludeFromLogging;
 
 @Entity
 @Table(name = "log_entries")

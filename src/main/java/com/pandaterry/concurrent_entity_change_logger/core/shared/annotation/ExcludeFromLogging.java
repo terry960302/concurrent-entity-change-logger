@@ -1,4 +1,4 @@
-package com.pandaterry.concurrent_entity_change_logger.core.annotation;
+package com.pandaterry.concurrent_entity_change_logger.core.shared.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

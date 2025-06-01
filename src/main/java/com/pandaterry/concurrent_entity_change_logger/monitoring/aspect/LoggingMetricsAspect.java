@@ -1,6 +1,6 @@
 package com.pandaterry.concurrent_entity_change_logger.monitoring.aspect;
 
-import com.pandaterry.concurrent_entity_change_logger.core.strategy.BlockingQueueLoggingStrategy;
+import com.pandaterry.concurrent_entity_change_logger.core.application.strategy.BlockingQueueLoggingStrategy;
 import com.pandaterry.concurrent_entity_change_logger.monitoring.annotation.LoggingMetrics;
 import com.pandaterry.concurrent_entity_change_logger.monitoring.service.EntityChangeMetrics;
 import io.micrometer.core.instrument.Timer.Sample;
@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.BlockingQueue;

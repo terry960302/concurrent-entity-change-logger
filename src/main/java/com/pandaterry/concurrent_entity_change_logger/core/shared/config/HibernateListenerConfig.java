@@ -1,6 +1,6 @@
-package com.pandaterry.concurrent_entity_change_logger.core.config;
+package com.pandaterry.concurrent_entity_change_logger.core.shared.config;
 
-import com.pandaterry.concurrent_entity_change_logger.core.listener.EntityChangeListener;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.listener.EntityChangeListener;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.event.service.spi.EventListenerRegistry;

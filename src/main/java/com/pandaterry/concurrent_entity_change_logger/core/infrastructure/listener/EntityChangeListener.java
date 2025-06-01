@@ -1,9 +1,9 @@
-package com.pandaterry.concurrent_entity_change_logger.core.listener;
+package com.pandaterry.concurrent_entity_change_logger.core.infrastructure.listener;
 
-import com.pandaterry.concurrent_entity_change_logger.core.enumerated.OperationType;
-import com.pandaterry.concurrent_entity_change_logger.core.strategy.LoggingStrategy;
-import com.pandaterry.concurrent_entity_change_logger.core.util.EntityStateCopier;
-import com.pandaterry.concurrent_entity_change_logger.core.util.EntityLoggingCondition;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.application.strategy.LoggingStrategy;
+import com.pandaterry.concurrent_entity_change_logger.core.shared.util.EntityStateCopier;
+import com.pandaterry.concurrent_entity_change_logger.core.shared.config.EntityLoggingProperties;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.event.spi.*;
 import org.hibernate.persister.entity.EntityPersister;
@@ -14,19 +14,19 @@ import org.springframework.stereotype.Component;
 public class EntityChangeListener
         implements PostInsertEventListener, PostUpdateEventListener, PostDeleteEventListener {
     private final LoggingStrategy loggingStrategy;
-    private final EntityLoggingCondition loggingCondition;
+    private final EntityLoggingProperties loggingProperties;
     private final EntityStateCopier stateCopier;
 
     @Override
     public void onPostInsert(PostInsertEvent event) {
-        if (loggingCondition.shouldLogChanges(event.getEntity())) {
+        if (loggingProperties.shouldLogChanges(event.getEntity())) {
             loggingStrategy.logChange(null, event.getEntity(), OperationType.INSERT);
         }
     }
 
     @Override
     public void onPostUpdate(PostUpdateEvent event) {
-        if (loggingCondition.shouldLogChanges(event.getEntity())) {
+        if (loggingProperties.shouldLogChanges(event.getEntity())) {
             Object oldEntity = stateCopier.cloneEntity(event);
             loggingStrategy.logChange(oldEntity, event.getEntity(), OperationType.UPDATE);
         }
@@ -34,7 +34,7 @@ public class EntityChangeListener
 
     @Override
     public void onPostDelete(PostDeleteEvent event) {
-        if (loggingCondition.shouldLogChanges(event.getEntity())) {
+        if (loggingProperties.shouldLogChanges(event.getEntity())) {
             loggingStrategy.logChange(event.getEntity(), null, OperationType.DELETE);
         }
     }

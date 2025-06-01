@@ -16,7 +16,23 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
-  
+
+# 엔티티 변경 로깅 설정
+entity-logging:
+  # 전역 로깅 활성화 여부
+  enabled: true
+  # 로깅에서 제외할 엔티티 목록
+  excluded-entities:
+    - LogEntry
+  # 로깅 전략 설정
+  strategy:
+    # 로그 큐 크기 (메모리 사용량과 성능의 균형)
+    queue-size: 100000
+    # 로그 처리 스레드 수 (동시 처리량)
+    thread-pool-size: 5
+    # 배치 플러시 주기 (밀리초)
+    flush-interval: 5000
+
 management:
   endpoints:
     web:
