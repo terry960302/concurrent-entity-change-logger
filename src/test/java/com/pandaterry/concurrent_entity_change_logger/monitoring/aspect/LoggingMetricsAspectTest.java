@@ -1,10 +1,8 @@
 package com.pandaterry.concurrent_entity_change_logger.monitoring.aspect;
 
-import com.pandaterry.concurrent_entity_change_logger.core.strategy.BlockingQueueLoggingStrategy;
+import com.pandaterry.concurrent_entity_change_logger.core.application.strategy.BlockingQueueLoggingStrategy;
 import com.pandaterry.concurrent_entity_change_logger.monitoring.annotation.LoggingMetrics;
 import com.pandaterry.concurrent_entity_change_logger.monitoring.service.EntityChangeMetrics;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

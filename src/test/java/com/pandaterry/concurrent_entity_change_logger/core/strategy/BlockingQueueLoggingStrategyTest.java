@@ -1,17 +1,16 @@
 package com.pandaterry.concurrent_entity_change_logger.core.strategy;
 
-import com.pandaterry.concurrent_entity_change_logger.core.entity.LogEntry;
-import com.pandaterry.concurrent_entity_change_logger.core.enumerated.OperationType;
-import com.pandaterry.concurrent_entity_change_logger.core.factory.LogEntryFactory;
-import com.pandaterry.concurrent_entity_change_logger.core.repository.LogEntryRepository;
-import com.pandaterry.concurrent_entity_change_logger.core.tracker.EntityChangeTracker;
-import com.pandaterry.concurrent_entity_change_logger.core.util.EntityLoggingCondition;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.entity.LogEntry;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.factory.LogEntryFactory;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.respository.LogEntryRepository;
+import com.pandaterry.concurrent_entity_change_logger.core.application.strategy.BlockingQueueLoggingStrategy;
+import com.pandaterry.concurrent_entity_change_logger.core.shared.config.EntityLoggingProperties;
 import jakarta.persistence.Id;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -35,10 +34,7 @@ class BlockingQueueLoggingStrategyTest {
     private LogEntryRepository logEntryRepository;
 
     @Mock
-    private EntityChangeTracker changeTracker;
-
-    @Mock
-    private EntityLoggingCondition loggingCondition;
+    private EntityLoggingProperties loggingProperties;
 
     @Mock
     private LogEntryFactory logEntryFactory;
@@ -47,9 +43,9 @@ class BlockingQueueLoggingStrategyTest {
 
     @BeforeEach
     void setUp() {
-        strategy = new BlockingQueueLoggingStrategy(logEntryRepository, null, changeTracker, loggingCondition,
+        strategy = new BlockingQueueLoggingStrategy(logEntryRepository, null,
                 logEntryFactory);
-        when(loggingCondition.shouldLogChanges(any())).thenReturn(true);
+        when(loggingProperties.shouldLogChanges(any())).thenReturn(true);
     }
 
     @Test
@@ -82,7 +78,7 @@ class BlockingQueueLoggingStrategyTest {
         // given
         TestEntity entity = new TestEntity(1L, "test");
         TestEntity newEntity = new TestEntity(1L, "updated");
-        when(loggingCondition.shouldLogChanges(any())).thenReturn(false);
+        when(loggingProperties.shouldLogChanges(any())).thenReturn(false);
 
         // when
         strategy.logChange(entity, newEntity, OperationType.UPDATE);

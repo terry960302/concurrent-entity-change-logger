@@ -1,8 +1,8 @@
-package com.pandaterry.concurrent_entity_change_logger.core.factory;
+package com.pandaterry.concurrent_entity_change_logger.core.infrastructure.factory;
 
-import com.pandaterry.concurrent_entity_change_logger.core.entity.LogEntry;
-import com.pandaterry.concurrent_entity_change_logger.core.enumerated.OperationType;
-import com.pandaterry.concurrent_entity_change_logger.core.tracker.EntityChangeTracker;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.entity.LogEntry;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.application.tracker.EntityChangeTracker;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
