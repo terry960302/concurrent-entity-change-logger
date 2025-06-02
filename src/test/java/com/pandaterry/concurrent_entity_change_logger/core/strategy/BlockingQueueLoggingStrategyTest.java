@@ -5,7 +5,7 @@ import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.Ope
 import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.factory.LogEntryFactory;
 import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.respository.LogEntryRepository;
 import com.pandaterry.concurrent_entity_change_logger.core.application.strategy.BlockingQueueLoggingStrategy;
-import com.pandaterry.concurrent_entity_change_logger.core.shared.config.EntityLoggingProperties;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.config.EntityLoggingProperties;
 import jakarta.persistence.Id;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

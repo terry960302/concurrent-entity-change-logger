@@ -1,4 +1,4 @@
-package com.pandaterry.concurrent_entity_change_logger.core.shared.config;
+package com.pandaterry.concurrent_entity_change_logger.core.infrastructure.config;
 
 import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.factory.LogEntryFactory;
 import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.respository.LogEntryRepository;
