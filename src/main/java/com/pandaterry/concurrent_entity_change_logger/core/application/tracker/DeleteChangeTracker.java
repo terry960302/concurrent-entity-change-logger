@@ -1,6 +1,6 @@
 package com.pandaterry.concurrent_entity_change_logger.core.application.tracker;
 
-import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.Operation;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -28,7 +28,7 @@ public class DeleteChangeTracker extends AbstractChangeTracker {
     }
 
     @Override
-    public boolean supports(OperationType operationType) {
-        return operationType == OperationType.DELETE;
+    public boolean supports(Operation operationType) {
+        return operationType == Operation.DELETE;
     }
 }

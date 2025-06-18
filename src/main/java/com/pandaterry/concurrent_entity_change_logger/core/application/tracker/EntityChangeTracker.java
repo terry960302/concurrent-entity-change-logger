@@ -1,6 +1,6 @@
 package com.pandaterry.concurrent_entity_change_logger.core.application.tracker;
 
-import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.Operation;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -15,7 +15,7 @@ public class EntityChangeTracker {
         this.trackers = trackers;
     }
 
-    public Map<String, String> trackChanges(Object oldEntity, Object newEntity, OperationType operation) {
+    public Map<String, String> trackChanges(Object oldEntity, Object newEntity, Operation operation) {
         return trackers.stream()
                 .filter(tracker -> tracker.supports(operation))
                 .findFirst()

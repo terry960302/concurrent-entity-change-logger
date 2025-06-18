@@ -5,9 +5,9 @@ spring:
     properties:
       hibernate:
         jdbc:
-          batch_size: 30
-        order_inserts: true
-        order_updates: true
+          batch_size: 1000
+          order_inserts: true
+          order_updates: true
 
 server:
   port: 8080
@@ -24,6 +24,8 @@ entity-logging:
   # 로깅에서 제외할 엔티티 목록
   excluded-entities:
     - LogEntry
+  # 스토리지에 저장할 타입(disk | jpa | noop)
+  storage-type: disk
   # 로깅 전략 설정
   strategy:
     # 로그 큐 크기 (메모리 사용량과 성능의 균형)

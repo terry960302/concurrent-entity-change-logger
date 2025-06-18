@@ -1,8 +1,8 @@
 package com.pandaterry.concurrent_entity_change_logger.core.infrastructure.listener;
 
-import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
 import com.pandaterry.concurrent_entity_change_logger.core.application.strategy.LoggingStrategy;
-import com.pandaterry.concurrent_entity_change_logger.core.shared.util.EntityStateCopier;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.Operation;
+import com.pandaterry.concurrent_entity_change_logger.core.common.util.EntityStateCopier;
 import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.config.EntityLoggingProperties;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.event.spi.*;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class EntityChangeListener
-        implements PostCommitUpdateEventListener, PostCommitDeleteEventListener, PostCommitInsertEventListener {
+        implements PostUpdateEventListener, PostDeleteEventListener, PostInsertEventListener {
     private final LoggingStrategy loggingStrategy;
     private final EntityLoggingProperties loggingProperties;
     private final EntityStateCopier stateCopier;
@@ -23,7 +23,7 @@ public class EntityChangeListener
     @Override
     public void onPostInsert(PostInsertEvent event) {
         if (loggingProperties.shouldLogChanges(event.getEntity())) {
-            loggingStrategy.logChange(null, event.getEntity(), OperationType.INSERT);
+            loggingStrategy.logChange(null, event.getEntity(), Operation.CREATE);
         }
     }
 
@@ -31,34 +31,19 @@ public class EntityChangeListener
     public void onPostUpdate(PostUpdateEvent event) {
         if (loggingProperties.shouldLogChanges(event.getEntity())) {
             Object oldEntity = stateCopier.cloneEntity(event);
-            loggingStrategy.logChange(oldEntity, event.getEntity(), OperationType.UPDATE);
+            loggingStrategy.logChange(oldEntity, event.getEntity(), Operation.UPDATE);
         }
     }
 
     @Override
     public void onPostDelete(PostDeleteEvent event) {
         if (loggingProperties.shouldLogChanges(event.getEntity())) {
-            loggingStrategy.logChange(event.getEntity(), null, OperationType.DELETE);
+            loggingStrategy.logChange(event.getEntity(), null, Operation.DELETE);
         }
     }
 
     @Override
     public boolean requiresPostCommitHandling(EntityPersister persister) {
         return false;
-    }
-
-    @Override
-    public void onPostInsertCommitFailed(PostInsertEvent event) {
-        log.error("Failed to insert entity: {}", event.getEntity());
-    }
-
-    @Override
-    public void onPostDeleteCommitFailed(PostDeleteEvent event) {
-        log.error("Failed to delete entity: {}", event.getEntity());
-    }
-
-    @Override
-    public void onPostUpdateCommitFailed(PostUpdateEvent event) {
-        log.error("Failed to update entity: {}", event.getEntity());
     }
 }

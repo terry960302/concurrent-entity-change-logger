@@ -1,9 +1,14 @@
 package com.pandaterry.concurrent_entity_change_logger.monitoring.constants;
 
 public class MetricNames {
-    public static final String LOG_PROCESSOR_LOGS_TOTAL = "log_processor_logs_total";
-    public static final String LOG_PROCESSOR_QUEUE_SIZE = "log_processor_queue_size";
-    public static final String LOG_PROCESSOR_BATCH_QUEUE_SIZE = "log_processor_batch_queue_size";
-    public static final String LOG_PROCESSOR_ERRORS_TOTAL = "log_processor_errors_total";
-    public static final String LOG_PROCESSOR_PROCESSING_TIME = "log_processor_processing_time_seconds";
+    private MetricNames(){}
+    public static final String ENTITYLOG_QUEUE_DROPPED          = "entitylog.queue.dropped";
+    public static final String ENTITYLOG_BATCH_SAVE_ERRORS      = "entitylog.batch.save.errors";
+    public static final String ENTITYLOG_BATCH_PROCESSED        = "entitylog.batch.processed";
+    public static final String ENTITYLOG_BATCH_SIZE             = "entitylog.batch.size";
+    public static final String ENTITYLOG_QUEUE_SIZE             = "entitylog.queue.size";
+    public static final String ENTITYLOG_QUEUE_OFFER_LATENCY    = "entitylog.queue.offer.latency";
+    public static final String ENTITYLOG_BATCH_PROCESSING_LATENCY = "entitylog.batch.processing.latency";
+    public static final String ENTITYLOG_FLUSH_LATENCY          = "entitylog.flush.latency";
+    public static final String ENTITYLOG_SHUTDOWN_FLUSHED_COUNT = "entitylog.shutdown.flushed.count";
 }

@@ -1,8 +1,8 @@
-package com.pandaterry.concurrent_entity_change_logger.core.infrastructure.factory;
+package com.pandaterry.concurrent_entity_change_logger.core.infrastructure.persistence;
 
-import com.pandaterry.concurrent_entity_change_logger.core.domain.entity.LogEntry;
-import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.LogEntry;
 import com.pandaterry.concurrent_entity_change_logger.core.application.tracker.EntityChangeTracker;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.Operation;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -16,7 +16,7 @@ public class LogEntryFactory {
         this.changeTracker = changeTracker;
     }
 
-    public LogEntry create(Object oldEntity, Object newEntity, OperationType operation) {
+    public LogEntry create(Object oldEntity, Object newEntity, Operation operation) {
         String entityName = getEntityName(oldEntity, newEntity);
         String entityId = getEntityId(oldEntity, newEntity);
         var changes = changeTracker.trackChanges(oldEntity, newEntity, operation);
@@ -24,7 +24,7 @@ public class LogEntryFactory {
         return LogEntry.builder()
                 .entityName(entityName)
                 .entityId(entityId)
-                .operation(operation.name())
+                .operation(operation)
                 .changes(changes)
                 .build();
     }

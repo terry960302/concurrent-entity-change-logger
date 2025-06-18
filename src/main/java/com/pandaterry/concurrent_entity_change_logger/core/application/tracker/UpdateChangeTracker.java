@@ -1,6 +1,6 @@
 package com.pandaterry.concurrent_entity_change_logger.core.application.tracker;
 
-import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.Operation;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -30,7 +30,7 @@ public class UpdateChangeTracker extends AbstractChangeTracker {
     }
 
     @Override
-    public boolean supports(OperationType operationType) {
-        return operationType == OperationType.UPDATE;
+    public boolean supports(Operation operation) {
+        return operation == Operation.UPDATE;
     }
 }

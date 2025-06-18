@@ -1,4 +1,4 @@
-package com.pandaterry.concurrent_entity_change_logger.core.shared.util;
+package com.pandaterry.concurrent_entity_change_logger.core.common.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.event.spi.PostUpdateEvent;
