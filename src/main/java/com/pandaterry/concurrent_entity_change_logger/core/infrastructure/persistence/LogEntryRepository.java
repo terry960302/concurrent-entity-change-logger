@@ -55,25 +55,6 @@ public class LogEntryRepository {
         return jdbcTemplate.queryForList(sql, LogEntry.class);
     }
 
-//    @Transactional
-//    public void saveBatch(List<LogEntry> toSave){
-//        String sql = """
-//            INSERT INTO log_entries (id, entity_name, entity_id, operation, changes, created_at)
-//            VALUES (?::uuid, ?, ?, ?, ?::jsonb, ?)
-//            """;
-//       int[][] inserted = this.jdbcTemplate.batchUpdate(sql, toSave, 1000, new ParameterizedPreparedStatementSetter<LogEntry>() {
-//           @Override
-//           public void setValues(PreparedStatement ps, LogEntry entry) throws SQLException {
-//               ps.setString(1, entry.getId().toString());
-//               ps.setString(2, entry.getEntityName());
-//               ps.setString(3, entry.getEntityId());
-//               ps.setString(4, entry.getOperation().name());
-//               ps.setObject(5, entry.getChanges());
-//               ps.setObject(6, entry.getCreatedAt());
-//           }
-//       });
-//
-//    }
 
     @Transactional
     public void saveBatch(List<LogEntry> toSave) {

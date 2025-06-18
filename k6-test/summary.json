@@ -1,343 +1,343 @@
 {
     "metrics": {
-        "data_received": {
-            "count": 73432426,
-            "rate": 84228.44230534745
-        },
-        "http_req_duration{expected_response:true}": {
-            "max": 179.26,
-            "p(90)": 5.231,
-            "p(95)": 8.553,
-            "avg": 4.280307409193877,
-            "min": 0.148,
-            "med": 2.956
-        },
-        "http_req_duration": {
-            "p(90)": 5.115,
-            "p(95)": 8.225,
-            "avg": 4.14731848592054,
-            "min": 0.148,
-            "med": 2.909,
-            "max": 179.26,
-            "thresholds": {
-                "p(95)<500": false,
-                "avg<200": false
-            }
-        },
-        "http_req_connecting": {
-            "p(90)": 0,
-            "p(95)": 0,
-            "avg": 0.002131479135726976,
-            "min": 0,
-            "med": 0,
-            "max": 28.635
-        },
         "http_req_sending": {
-            "avg": 0.016023568766202218,
-            "min": 0.005,
-            "med": 0.013,
-            "max": 26.282,
-            "p(90)": 0.023,
-            "p(95)": 0.031
-        },
-        "http_req_waiting": {
-            "avg": 4.0516298957514545,
+            "avg": 0.010816832838706901,
             "min": 0,
-            "med": 2.838,
-            "max": 178.198,
-            "p(90)": 4.999,
-            "p(95)": 7.956
-        },
-        "vus": {
-            "value": 38,
-            "min": 0,
-            "max": 38
-        },
-        "http_req_blocked": {
-            "avg": 0.007030368218730779,
-            "min": 0.001,
-            "med": 0.003,
-            "max": 28.729,
-            "p(90)": 0.005,
-            "p(95)": 0.009
-        },
-        "iterations": {
-            "count": 11409,
-            "rate": 13.086348233431767
-        },
-        "data_sent": {
-            "count": 49270316,
-            "rate": 56514.02513342317
-        },
-        "iteration_duration": {
-            "med": 1074.955768,
-            "max": 1963.747667,
-            "p(90)": 1139.8528336000002,
-            "p(95)": 1202.8431406000002,
-            "avg": 1101.5199915769208,
-            "min": 1044.423384
-        },
-        "checks": {
-            "fails": 11447,
-            "passes": 263281,
-            "value": 0.9583333333333334
+            "med": 0.014,
+            "max": 1.378,
+            "p(90)": 0.021,
+            "p(95)": 0.025
         },
         "http_req_receiving": {
-            "avg": 0.07966502140300077,
-            "min": 0.015,
-            "med": 0.049,
-            "max": 50.205,
-            "p(90)": 0.092,
-            "p(95)": 0.113
-        },
-        "http_req_failed": {
-            "passes": 11447,
-            "fails": 263281,
-            "thresholds": {
-                "rate<0.01": true
-            },
-            "value": 0.041666666666666664
-        },
-        "http_req_tls_handshaking": {
-            "p(95)": 0,
-            "avg": 0,
             "min": 0,
-            "med": 0,
-            "max": 0,
-            "p(90)": 0
+            "med": 0.057,
+            "max": 2.891,
+            "p(90)": 0.16820000000000074,
+            "p(95)": 0.22,
+            "avg": 0.06756177264997147
         },
         "group_duration": {
-            "min": 6.646372,
-            "med": 14.517781,
-            "max": 422.532834,
-            "p(90)": 28.223615199999998,
-            "p(95)": 48.72140159999995,
-            "avg": 20.598009729937896
+            "p(90)": 34.54508920000001,
+            "p(95)": 48.396404,
+            "avg": 18.14424767287694,
+            "min": 0.956786,
+            "med": 12.916866,
+            "max": 332.492899
         },
         "vus_max": {
             "value": 100,
             "min": 100,
             "max": 100
         },
+        "http_req_duration": {
+            "p(90)": 9.853200000000001,
+            "p(95)": 14.557599999999992,
+            "avg": 4.772419787255376,
+            "min": 0,
+            "med": 4.623,
+            "max": 148.848,
+            "thresholds": {
+                "p(95)<500": false,
+                "avg<200": false
+            }
+        },
+        "data_sent": {
+            "count": 3215759,
+            "rate": 27350.03782132016
+        },
+        "http_req_waiting": {
+            "max": 147.456,
+            "p(90)": 9.669200000000002,
+            "p(95)": 14.406399999999994,
+            "avg": 4.694041181766622,
+            "min": 0,
+            "med": 4.529
+        },
+        "http_req_blocked": {
+            "p(95)": 0.006,
+            "avg": 0.004484711060722631,
+            "min": 0,
+            "med": 0.003,
+            "max": 1.548,
+            "p(90)": 0.005
+        },
         "http_reqs": {
-            "count": 274728,
-            "rate": 315.1184396068229
+            "count": 29989,
+            "rate": 255.05651518772714
+        },
+        "http_req_connecting": {
+            "min": 0,
+            "med": 0,
+            "max": 0.329,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.0010836306645770116
+        },
+        "vus": {
+            "value": 10,
+            "min": 10,
+            "max": 10
+        },
+        "http_req_failed": {
+            "passes": 12668,
+            "fails": 17321,
+            "thresholds": {
+                "rate<0.01": true
+            },
+            "value": 0.422421554570009
+        },
+        "data_received": {
+            "count": 5334884,
+            "rate": 45373.20090602429
+        },
+        "iterations": {
+            "count": 12657,
+            "rate": 107.64781462306388
+        },
+        "http_req_tls_handshaking": {
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0
+        },
+        "http_req_duration{expected_response:true}": {
+            "med": 6.439,
+            "max": 148.848,
+            "p(90)": 13.538,
+            "p(95)": 18.122,
+            "avg": 8.193074707003133,
+            "min": 3.342
+        },
+        "checks": {
+            "passes": 17321,
+            "fails": 12665,
+            "value": 0.577636230240779
+        },
+        "iteration_duration": {
+            "avg": 81.84964467820193,
+            "min": 0.970352,
+            "med": 11.877842,
+            "max": 1882.106775,
+            "p(90)": 18.669632399999998,
+            "p(95)": 1124.0040451999998
         }
     },
     "root_group": {
+        "groups": {
+            "Basic User Flow": {
+                "id": "44313a8a50cb38763735ec63cf14117b",
+                "groups": {},
+                "checks": {
+                        "createUser 2xx": {
+                            "name": "createUser 2xx",
+                            "path": "::Basic User Flow::createUser 2xx",
+                            "id": "7c7776ea01437246fda7c77bed5732c0",
+                            "passes": 756,
+                            "fails": 11901
+                        },
+                        "updateLogin 2xx": {
+                            "passes": 755,
+                            "fails": 1,
+                            "name": "updateLogin 2xx",
+                            "path": "::Basic User Flow::updateLogin 2xx",
+                            "id": "4c756c9091810a185cab1c63047025a6"
+                        },
+                        "userdeactivate 2xx": {
+                            "passes": 755,
+                            "fails": 1,
+                            "name": "userdeactivate 2xx",
+                            "path": "::Basic User Flow::userdeactivate 2xx",
+                            "id": "62bacabfba25967627a9f9419397aa4b"
+                        },
+                        "useractivate 2xx": {
+                            "name": "useractivate 2xx",
+                            "path": "::Basic User Flow::useractivate 2xx",
+                            "id": "1d17a17d3d0ded5db2297a49862672ad",
+                            "passes": 754,
+                            "fails": 2
+                        }
+                    },
+                "name": "Basic User Flow",
+                "path": "::Basic User Flow"
+            },
+            "Basic Order Flow": {
+                "name": "Basic Order Flow",
+                "path": "::Basic Order Flow",
+                "id": "f99ceeeb8ba1342938b37831f14a5be7",
+                "groups": {},
+                "checks": {
+                        "createUser 2xx": {
+                            "passes": 754,
+                            "fails": 2,
+                            "name": "createUser 2xx",
+                            "path": "::Basic Order Flow::createUser 2xx",
+                            "id": "36f93fa7fba9ba40e56ddfea54f070e0"
+                        },
+                        "createOrder 2xx": {
+                            "fails": 0,
+                            "name": "createOrder 2xx",
+                            "path": "::Basic Order Flow::createOrder 2xx",
+                            "id": "346e3bc1d70c319099c41b59a93fd9bb",
+                            "passes": 754
+                        },
+                        "orderStatus PAID 2xx": {
+                            "name": "orderStatus PAID 2xx",
+                            "path": "::Basic Order Flow::orderStatus PAID 2xx",
+                            "id": "25d4e0323d4b66252512c590a36a1033",
+                            "passes": 754,
+                            "fails": 0
+                        },
+                        "orderStatus SHIPPED 2xx": {
+                            "name": "orderStatus SHIPPED 2xx",
+                            "path": "::Basic Order Flow::orderStatus SHIPPED 2xx",
+                            "id": "22b573444fa29c97b41becd6db6b443a",
+                            "passes": 754,
+                            "fails": 0
+                        },
+                        "orderStatus DELIVERED 2xx": {
+                            "name": "orderStatus DELIVERED 2xx",
+                            "path": "::Basic Order Flow::orderStatus DELIVERED 2xx",
+                            "id": "caa782fae6d111d20a6ba8aa8ab08873",
+                            "passes": 754,
+                            "fails": 0
+                        },
+                        "orderAmountChange 2xx": {
+                            "name": "orderAmountChange 2xx",
+                            "path": "::Basic Order Flow::orderAmountChange 2xx",
+                            "id": "b6c6f09be9c4b4659ddf026e04d7db45",
+                            "passes": 754,
+                            "fails": 0
+                        }
+                    }
+            },
+            "Basic Product Flow": {
+                "id": "0c0a785f3643173ce4828984d7325725",
+                "groups": {},
+                "checks": {
+                        "createProduct 2xx": {
+                            "name": "createProduct 2xx",
+                            "path": "::Basic Product Flow::createProduct 2xx",
+                            "id": "5a591d15f26581063d9a12e2b0d80daa",
+                            "passes": 754,
+                            "fails": 0
+                        },
+                        "productStockChange 2xx": {
+                            "passes": 754,
+                            "fails": 0,
+                            "name": "productStockChange 2xx",
+                            "path": "::Basic Product Flow::productStockChange 2xx",
+                            "id": "0d0769b80d97a8c6397a8928aba7b211"
+                        },
+                        "productdeactivate 2xx": {
+                            "name": "productdeactivate 2xx",
+                            "path": "::Basic Product Flow::productdeactivate 2xx",
+                            "id": "d79509e617d3803cb44a8e52aec92ff6",
+                            "passes": 753,
+                            "fails": 1
+                        },
+                        "productactivate 2xx": {
+                            "name": "productactivate 2xx",
+                            "path": "::Basic Product Flow::productactivate 2xx",
+                            "id": "a49750933ca7f9cd53b49f54db32228e",
+                            "passes": 752,
+                            "fails": 2
+                        }
+                    },
+                "name": "Basic Product Flow",
+                "path": "::Basic Product Flow"
+            },
+            "Composite User-Order Flow": {
+                "name": "Composite User-Order Flow",
+                "path": "::Composite User-Order Flow",
+                "id": "99eddce49784461ef2f7b720b9209ff8",
+                "groups": {},
+                "checks": {
+                        "createUser 2xx": {
+                            "passes": 752,
+                            "fails": 2,
+                            "name": "createUser 2xx",
+                            "path": "::Composite User-Order Flow::createUser 2xx",
+                            "id": "40f16c13f3dfcd985cd4fb74af33ee20"
+                        },
+                        "createOrder 2xx": {
+                            "name": "createOrder 2xx",
+                            "path": "::Composite User-Order Flow::createOrder 2xx",
+                            "id": "f3f416bc51169d7f1948b80e8b090444",
+                            "passes": 752,
+                            "fails": 0
+                        },
+                        "orderStatus PAID 2xx": {
+                            "name": "orderStatus PAID 2xx",
+                            "path": "::Composite User-Order Flow::orderStatus PAID 2xx",
+                            "id": "069bc3d187a3c08a7e94a17210db7953",
+                            "passes": 752,
+                            "fails": 0
+                        },
+                        "updateLogin 2xx": {
+                            "name": "updateLogin 2xx",
+                            "path": "::Composite User-Order Flow::updateLogin 2xx",
+                            "id": "f13923b153eb8549bf701a67ee5eaa96",
+                            "passes": 752,
+                            "fails": 0
+                        }
+                    }
+            },
+            "Composite Product-Order Flow": {
+                "name": "Composite Product-Order Flow",
+                "path": "::Composite Product-Order Flow",
+                "id": "dd5361066bed415fd84ac7d7bbca0edd",
+                "groups": {},
+                "checks": {
+                        "createProduct 2xx": {
+                            "fails": 0,
+                            "name": "createProduct 2xx",
+                            "path": "::Composite Product-Order Flow::createProduct 2xx",
+                            "id": "36061a2c18da3df35dcf8d0ce3c8fab5",
+                            "passes": 752
+                        },
+                        "productStockChange 2xx": {
+                            "name": "productStockChange 2xx",
+                            "path": "::Composite Product-Order Flow::productStockChange 2xx",
+                            "id": "dd7d2090d00ffc4e40f477f15fc33fc8",
+                            "passes": 751,
+                            "fails": 1
+                        },
+                        "createUser 2xx": {
+                            "name": "createUser 2xx",
+                            "path": "::Composite Product-Order Flow::createUser 2xx",
+                            "id": "519189cbfbe8b480a992e9074f1bd9e5",
+                            "passes": 751,
+                            "fails": 1
+                        },
+                        "createOrder 2xx": {
+                            "name": "createOrder 2xx",
+                            "path": "::Composite Product-Order Flow::createOrder 2xx",
+                            "id": "a04eb1bc90b6c42432b37c9ba27ab7a8",
+                            "passes": 751,
+                            "fails": 0
+                        },
+                        "orderStatus SHIPPED 2xx": {
+                            "path": "::Composite Product-Order Flow::orderStatus SHIPPED 2xx",
+                            "id": "ae249f3660927a9c4e43092dccdaa858",
+                            "passes": 751,
+                            "fails": 0,
+                            "name": "orderStatus SHIPPED 2xx"
+                        },
+                        "getProduct 200": {
+                            "fails": 751,
+                            "name": "getProduct 200",
+                            "path": "::Composite Product-Order Flow::getProduct 200",
+                            "id": "24ce1066c574a91c1a54686a34f0f94b",
+                            "passes": 0
+                        }
+                    }
+            }
+        },
         "checks": {},
         "name": "",
         "path": "",
-        "id": "d41d8cd98f00b204e9800998ecf8427e",
-        "groups": {
-                "Basic User Flow": {
-                    "groups": {},
-                    "checks": {
-                            "createUser 2xx": {
-                                "fails": 0,
-                                "name": "createUser 2xx",
-                                "path": "::Basic User Flow::createUser 2xx",
-                                "id": "7c7776ea01437246fda7c77bed5732c0",
-                                "passes": 11447
-                            },
-                            "updateLogin 2xx": {
-                                "path": "::Basic User Flow::updateLogin 2xx",
-                                "id": "4c756c9091810a185cab1c63047025a6",
-                                "passes": 11447,
-                                "fails": 0,
-                                "name": "updateLogin 2xx"
-                            },
-                            "userdeactivate 2xx": {
-                                "name": "userdeactivate 2xx",
-                                "path": "::Basic User Flow::userdeactivate 2xx",
-                                "id": "62bacabfba25967627a9f9419397aa4b",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "useractivate 2xx": {
-                                "name": "useractivate 2xx",
-                                "path": "::Basic User Flow::useractivate 2xx",
-                                "id": "1d17a17d3d0ded5db2297a49862672ad",
-                                "passes": 11447,
-                                "fails": 0
-                            }
-                        },
-                    "name": "Basic User Flow",
-                    "path": "::Basic User Flow",
-                    "id": "44313a8a50cb38763735ec63cf14117b"
-                },
-                "Basic Order Flow": {
-                    "name": "Basic Order Flow",
-                    "path": "::Basic Order Flow",
-                    "id": "f99ceeeb8ba1342938b37831f14a5be7",
-                    "groups": {},
-                    "checks": {
-                            "createUser 2xx": {
-                                "name": "createUser 2xx",
-                                "path": "::Basic Order Flow::createUser 2xx",
-                                "id": "36f93fa7fba9ba40e56ddfea54f070e0",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "createOrder 2xx": {
-                                "name": "createOrder 2xx",
-                                "path": "::Basic Order Flow::createOrder 2xx",
-                                "id": "346e3bc1d70c319099c41b59a93fd9bb",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "orderStatus PAID 2xx": {
-                                "name": "orderStatus PAID 2xx",
-                                "path": "::Basic Order Flow::orderStatus PAID 2xx",
-                                "id": "25d4e0323d4b66252512c590a36a1033",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "orderStatus SHIPPED 2xx": {
-                                "name": "orderStatus SHIPPED 2xx",
-                                "path": "::Basic Order Flow::orderStatus SHIPPED 2xx",
-                                "id": "22b573444fa29c97b41becd6db6b443a",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "orderStatus DELIVERED 2xx": {
-                                "fails": 0,
-                                "name": "orderStatus DELIVERED 2xx",
-                                "path": "::Basic Order Flow::orderStatus DELIVERED 2xx",
-                                "id": "caa782fae6d111d20a6ba8aa8ab08873",
-                                "passes": 11447
-                            },
-                            "orderAmountChange 2xx": {
-                                "name": "orderAmountChange 2xx",
-                                "path": "::Basic Order Flow::orderAmountChange 2xx",
-                                "id": "b6c6f09be9c4b4659ddf026e04d7db45",
-                                "passes": 11447,
-                                "fails": 0
-                            }
-                        }
-                },
-                "Basic Product Flow": {
-                    "id": "0c0a785f3643173ce4828984d7325725",
-                    "groups": {},
-                    "checks": {
-                            "createProduct 2xx": {
-                                "name": "createProduct 2xx",
-                                "path": "::Basic Product Flow::createProduct 2xx",
-                                "id": "5a591d15f26581063d9a12e2b0d80daa",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "productStockChange 2xx": {
-                                "name": "productStockChange 2xx",
-                                "path": "::Basic Product Flow::productStockChange 2xx",
-                                "id": "0d0769b80d97a8c6397a8928aba7b211",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "productdeactivate 2xx": {
-                                "name": "productdeactivate 2xx",
-                                "path": "::Basic Product Flow::productdeactivate 2xx",
-                                "id": "d79509e617d3803cb44a8e52aec92ff6",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "productactivate 2xx": {
-                                "name": "productactivate 2xx",
-                                "path": "::Basic Product Flow::productactivate 2xx",
-                                "id": "a49750933ca7f9cd53b49f54db32228e",
-                                "passes": 11447,
-                                "fails": 0
-                            }
-                        },
-                    "name": "Basic Product Flow",
-                    "path": "::Basic Product Flow"
-                },
-                "Composite User-Order Flow": {
-                    "name": "Composite User-Order Flow",
-                    "path": "::Composite User-Order Flow",
-                    "id": "99eddce49784461ef2f7b720b9209ff8",
-                    "groups": {},
-                    "checks": {
-                            "createUser 2xx": {
-                                "passes": 11447,
-                                "fails": 0,
-                                "name": "createUser 2xx",
-                                "path": "::Composite User-Order Flow::createUser 2xx",
-                                "id": "40f16c13f3dfcd985cd4fb74af33ee20"
-                            },
-                            "createOrder 2xx": {
-                                "passes": 11447,
-                                "fails": 0,
-                                "name": "createOrder 2xx",
-                                "path": "::Composite User-Order Flow::createOrder 2xx",
-                                "id": "f3f416bc51169d7f1948b80e8b090444"
-                            },
-                            "orderStatus PAID 2xx": {
-                                "passes": 11447,
-                                "fails": 0,
-                                "name": "orderStatus PAID 2xx",
-                                "path": "::Composite User-Order Flow::orderStatus PAID 2xx",
-                                "id": "069bc3d187a3c08a7e94a17210db7953"
-                            },
-                            "updateLogin 2xx": {
-                                "passes": 11447,
-                                "fails": 0,
-                                "name": "updateLogin 2xx",
-                                "path": "::Composite User-Order Flow::updateLogin 2xx",
-                                "id": "f13923b153eb8549bf701a67ee5eaa96"
-                            }
-                        }
-                },
-                "Composite Product-Order Flow": {
-                    "path": "::Composite Product-Order Flow",
-                    "id": "dd5361066bed415fd84ac7d7bbca0edd",
-                    "groups": {},
-                    "checks": {
-                            "createProduct 2xx": {
-                                "name": "createProduct 2xx",
-                                "path": "::Composite Product-Order Flow::createProduct 2xx",
-                                "id": "36061a2c18da3df35dcf8d0ce3c8fab5",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "productStockChange 2xx": {
-                                "name": "productStockChange 2xx",
-                                "path": "::Composite Product-Order Flow::productStockChange 2xx",
-                                "id": "dd7d2090d00ffc4e40f477f15fc33fc8",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "createUser 2xx": {
-                                "path": "::Composite Product-Order Flow::createUser 2xx",
-                                "id": "519189cbfbe8b480a992e9074f1bd9e5",
-                                "passes": 11447,
-                                "fails": 0,
-                                "name": "createUser 2xx"
-                            },
-                            "createOrder 2xx": {
-                                "name": "createOrder 2xx",
-                                "path": "::Composite Product-Order Flow::createOrder 2xx",
-                                "id": "a04eb1bc90b6c42432b37c9ba27ab7a8",
-                                "passes": 11447,
-                                "fails": 0
-                            },
-                            "orderStatus SHIPPED 2xx": {
-                                "path": "::Composite Product-Order Flow::orderStatus SHIPPED 2xx",
-                                "id": "ae249f3660927a9c4e43092dccdaa858",
-                                "passes": 11447,
-                                "fails": 0,
-                                "name": "orderStatus SHIPPED 2xx"
-                            },
-                            "getProduct 200": {
-                                "passes": 0,
-                                "fails": 11447,
-                                "name": "getProduct 200",
-                                "path": "::Composite Product-Order Flow::getProduct 200",
-                                "id": "24ce1066c574a91c1a54686a34f0f94b"
-                            }
-                        },
-                    "name": "Composite Product-Order Flow"
-                }
-            }
+        "id": "d41d8cd98f00b204e9800998ecf8427e"
     }
 }
