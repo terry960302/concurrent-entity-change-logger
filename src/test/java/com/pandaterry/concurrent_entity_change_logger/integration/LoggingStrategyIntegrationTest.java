@@ -1,12 +1,14 @@
 package com.pandaterry.concurrent_entity_change_logger.integration;
 
-import com.pandaterry.concurrent_entity_change_logger.core.domain.entity.LogEntry;
-import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
-import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.factory.LogEntryFactory;
-import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.respository.LogEntryRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.LogEntry;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.Operation;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.persistence.LogEntryFactory;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.persistence.LogEntryRepository;
 import com.pandaterry.concurrent_entity_change_logger.core.application.strategy.BlockingQueueLoggingStrategy;
 import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.config.EntityLoggingProperties;
-import com.pandaterry.concurrent_entity_change_logger.monitoring.service.EntityChangeMetrics;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.storage.LogStorage;
+import com.pandaterry.concurrent_entity_change_logger.monitoring.service.MicrometerLogMetricsRecorder;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import jakarta.persistence.Id;
@@ -34,11 +36,20 @@ class LoggingStrategyIntegrationTest {
     @Autowired
     private LogEntryFactory logEntryFactory;
 
+    @Autowired
+    private LogStorage logStorage;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private MicrometerLogMetricsRecorder metricsRecorder;
+
     private BlockingQueueLoggingStrategy strategy;
+
 
     @BeforeEach
     void setUp() {
-        strategy = new BlockingQueueLoggingStrategy(logEntryRepository, loggingProperties, logEntryFactory);
+        strategy = new BlockingQueueLoggingStrategy(logEntryRepository, loggingProperties, logEntryFactory, logStorage, objectMapper, metricsRecorder);
     }
 
     @Test
@@ -48,7 +59,7 @@ class LoggingStrategyIntegrationTest {
         TestEntity newEntity = new TestEntity(1L, "updated");
 
         // when
-        strategy.logChange(entity, newEntity, OperationType.UPDATE);
+        strategy.logChange(entity, newEntity, Operation.UPDATE);
         strategy.flush(); // 배치 처리 강제 실행
         TimeUnit.MILLISECONDS.sleep(100); // 비동기 처리 대기
 
@@ -58,7 +69,7 @@ class LoggingStrategyIntegrationTest {
         LogEntry entry = entries.get(0);
         assertThat(entry.getEntityName()).isEqualTo("TestEntity");
         assertThat(entry.getEntityId()).isEqualTo("1");
-        assertThat(entry.getOperation()).isEqualTo(OperationType.UPDATE.name());
+        assertThat(entry.getOperation()).isEqualTo(Operation.UPDATE);
     }
 
     @Test
@@ -68,8 +79,8 @@ class LoggingStrategyIntegrationTest {
         TestEntity entity2 = new TestEntity(2L, "test2");
 
         // when
-        strategy.logChange(null, entity1, OperationType.INSERT);
-        strategy.logChange(entity1, entity2, OperationType.UPDATE);
+        strategy.logChange(null, entity1, Operation.CREATE);
+        strategy.logChange(entity1, entity2, Operation.UPDATE);
         strategy.flush();
         TimeUnit.MILLISECONDS.sleep(100);
 
@@ -77,7 +88,7 @@ class LoggingStrategyIntegrationTest {
         List<LogEntry> entries = logEntryRepository.findAll();
         assertThat(entries).hasSize(2);
         assertThat(entries).extracting(LogEntry::getOperation)
-                .containsExactlyInAnyOrder(OperationType.INSERT.name(), OperationType.UPDATE.name());
+                .containsExactlyInAnyOrder(Operation.CREATE, Operation.UPDATE);
     }
 
     @Test
@@ -91,7 +102,7 @@ class LoggingStrategyIntegrationTest {
             final int index = i;
             threads[i] = new Thread(() -> {
                 TestEntity entity = new TestEntity((long) index, "test" + index);
-                strategy.logChange(null, entity, OperationType.INSERT);
+                strategy.logChange(null, entity, Operation.CREATE);
             });
             threads[i].start();
         }
@@ -106,7 +117,7 @@ class LoggingStrategyIntegrationTest {
         List<LogEntry> entries = logEntryRepository.findAll();
         assertThat(entries).hasSize(threadCount);
         assertThat(entries).extracting(LogEntry::getOperation)
-                .allMatch(op -> op.equals(OperationType.INSERT.name()));
+                .allMatch(op -> op.equals(Operation.CREATE));
     }
 
     private static class TestEntity {
@@ -128,8 +139,8 @@ class LoggingStrategyIntegrationTest {
         }
 
         @Bean
-        public EntityChangeMetrics entityChangeMetrics(MeterRegistry meterRegistry) {
-            return new EntityChangeMetrics(meterRegistry);
+        public MicrometerLogMetricsRecorder entityChangeMetrics(MeterRegistry meterRegistry) {
+            return new MicrometerLogMetricsRecorder(meterRegistry);
         }
     }
 }

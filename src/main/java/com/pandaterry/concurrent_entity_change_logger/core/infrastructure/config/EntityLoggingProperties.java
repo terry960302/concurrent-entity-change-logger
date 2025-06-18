@@ -1,6 +1,6 @@
 package com.pandaterry.concurrent_entity_change_logger.core.infrastructure.config;
 
-import com.pandaterry.concurrent_entity_change_logger.core.shared.annotation.ExcludeFromLogging;
+import com.pandaterry.concurrent_entity_change_logger.core.common.annotation.ExcludeFromLogging;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +19,7 @@ import java.util.Set;
 public class EntityLoggingProperties {
     private boolean enabled = true;
     private Set<String> excludedEntities = new HashSet<>();
+    private String storageType;
     private Strategy strategy = new Strategy();
 
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
@@ -31,6 +32,7 @@ public class EntityLoggingProperties {
         private int threadPoolSize = 5;
         private int flushInterval = 5000;
     }
+
 
     @PostConstruct
     public void validate() {

@@ -2,7 +2,9 @@ package com.pandaterry.concurrent_entity_change_logger.core.infrastructure.stora
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.pandaterry.concurrent_entity_change_logger.core.domain.entity.LogEntry;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.LogEntry;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.storage.Checkpoint;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.storage.LogStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -10,16 +12,17 @@ import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
-@Component
 public class DiskLogWriter implements LogStorage {
     private static final int BUFFER_SIZE = 8192;
-    private static final String CHECKPOINT_FILE = "checkpoint.json";
+    private static final String LOG_FILE_PATH = "logs/entity-changes.log";
+    private static final String CHECKPOINT_FILE = "logs/checkpoints/checkpoint.json";
     private static final String BACKUP_SUFFIX = ".backup";
 
     private final ObjectMapper objectMapper;
@@ -30,10 +33,10 @@ public class DiskLogWriter implements LogStorage {
     private FileChannel channel;
     private FileLock lock;
 
-    public DiskLogWriter() {
-        this.objectMapper = new ObjectMapper();
+    public DiskLogWriter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        this.logFilePath = Paths.get("logs/entity-changes.log");
+        this.logFilePath = Paths.get(LOG_FILE_PATH);
         this.filePosition = new AtomicLong(0);
     }
 
@@ -44,9 +47,14 @@ public class DiskLogWriter implements LogStorage {
         // 파일 잠금 획득
         this.logFile = new RandomAccessFile(logFilePath.toFile(), "rw");
         this.channel = logFile.getChannel();
-        this.lock = channel.tryLock();
+
+        try{
+            this.lock = channel.tryLock(0L, Long.MAX_VALUE, false);
+        }catch (OverlappingFileLockException e){
+            throw new RuntimeException("JVM에서 이미 락이 걸려있어서 파일 락을 획득할 수 없습니다. " + e);
+        }
         if (lock == null) {
-            throw new IOException("Cannot acquire file lock");
+            throw new IOException("다른 프로세스가 락을 갖고 있어서 락을 획득할 수 없습니다.");
         }
 
         // 버퍼링 설정

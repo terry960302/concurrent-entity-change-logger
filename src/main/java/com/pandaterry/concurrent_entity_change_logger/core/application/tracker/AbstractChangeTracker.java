@@ -1,6 +1,6 @@
 package com.pandaterry.concurrent_entity_change_logger.core.application.tracker;
 
-import com.pandaterry.concurrent_entity_change_logger.core.shared.annotation.ExcludeFromLogging;
+import com.pandaterry.concurrent_entity_change_logger.core.common.annotation.ExcludeFromLogging;
 
 import java.lang.reflect.Field;
 import java.util.Objects;

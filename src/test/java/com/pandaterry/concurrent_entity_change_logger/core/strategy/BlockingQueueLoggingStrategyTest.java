@@ -1,11 +1,14 @@
 package com.pandaterry.concurrent_entity_change_logger.core.strategy;
 
-import com.pandaterry.concurrent_entity_change_logger.core.domain.entity.LogEntry;
-import com.pandaterry.concurrent_entity_change_logger.core.domain.enumerated.OperationType;
-import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.factory.LogEntryFactory;
-import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.respository.LogEntryRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.LogEntry;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.Operation;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.persistence.LogEntryFactory;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.persistence.LogEntryRepository;
 import com.pandaterry.concurrent_entity_change_logger.core.application.strategy.BlockingQueueLoggingStrategy;
 import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.config.EntityLoggingProperties;
+import com.pandaterry.concurrent_entity_change_logger.core.infrastructure.storage.LogStorage;
+import com.pandaterry.concurrent_entity_change_logger.monitoring.service.MicrometerLogMetricsRecorder;
 import jakarta.persistence.Id;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,13 +41,20 @@ class BlockingQueueLoggingStrategyTest {
 
     @Mock
     private LogEntryFactory logEntryFactory;
+    @Mock
+    private MicrometerLogMetricsRecorder metricsRecorder;
+
+    @Mock
+    private LogStorage logStorage;
+    @Mock
+    private ObjectMapper objectMapper;
 
     private BlockingQueueLoggingStrategy strategy;
 
     @BeforeEach
     void setUp() {
         strategy = new BlockingQueueLoggingStrategy(logEntryRepository, null,
-                logEntryFactory);
+                logEntryFactory, logStorage, objectMapper,  metricsRecorder);
         when(loggingProperties.shouldLogChanges(any())).thenReturn(true);
     }
 
@@ -56,15 +66,15 @@ class BlockingQueueLoggingStrategyTest {
         LogEntry expectedEntry = LogEntry.builder()
                 .entityName("TestEntity")
                 .entityId("1")
-                .operation(OperationType.UPDATE.name())
+                .operation(Operation.UPDATE)
                 .changes(Map.of("name", "test -> updated"))
                 .build();
 
-        when(logEntryFactory.create(entity, newEntity, OperationType.UPDATE))
+        when(logEntryFactory.create(entity, newEntity, Operation.UPDATE))
                 .thenReturn(expectedEntry);
 
         // when
-        strategy.logChange(entity, newEntity, OperationType.UPDATE);
+        strategy.logChange(entity, newEntity, Operation.UPDATE);
 
         // then
         BlockingQueue<LogEntry> logQueue = (BlockingQueue<LogEntry>) ReflectionTestUtils.getField(strategy, "logQueue");
@@ -81,7 +91,7 @@ class BlockingQueueLoggingStrategyTest {
         when(loggingProperties.shouldLogChanges(any())).thenReturn(false);
 
         // when
-        strategy.logChange(entity, newEntity, OperationType.UPDATE);
+        strategy.logChange(entity, newEntity, Operation.UPDATE);
 
         // then
         BlockingQueue<LogEntry> logQueue = (BlockingQueue<LogEntry>) ReflectionTestUtils.getField(strategy, "logQueue");
@@ -94,7 +104,7 @@ class BlockingQueueLoggingStrategyTest {
         LogEntry entry = LogEntry.builder()
                 .entityName("TestEntity")
                 .entityId("1")
-                .operation(OperationType.INSERT.name())
+                .operation(Operation.CREATE)
                 .build();
 
         // when
@@ -111,8 +121,8 @@ class BlockingQueueLoggingStrategyTest {
     void flushBatch_ShouldSaveToRepository() {
         // given
         List<LogEntry> entries = List.of(
-                LogEntry.builder().entityName("Test1").entityId("1").operation(OperationType.INSERT.name()).build(),
-                LogEntry.builder().entityName("Test2").entityId("2").operation(OperationType.UPDATE.name()).build());
+                LogEntry.builder().entityName("Test1").entityId("1").operation(Operation.CREATE).build(),
+                LogEntry.builder().entityName("Test2").entityId("2").operation(Operation.UPDATE).build());
         ConcurrentLinkedQueue<LogEntry> batchQueue = (ConcurrentLinkedQueue<LogEntry>) ReflectionTestUtils
                 .getField(strategy, "batchQueue");
         entries.forEach(batchQueue::add);
@@ -168,7 +178,7 @@ class BlockingQueueLoggingStrategyTest {
     @Test
     void logChange_ShouldHandleNullEntities() {
         // when
-        strategy.logChange(null, null, OperationType.DELETE);
+        strategy.logChange(null, null, Operation.DELETE);
 
         // then
         BlockingQueue<LogEntry> logQueue = (BlockingQueue<LogEntry>) ReflectionTestUtils.getField(strategy, "logQueue");
@@ -191,7 +201,7 @@ class BlockingQueueLoggingStrategyTest {
         LogEntry existingEntry = LogEntry.builder()
                 .entityName("Existing")
                 .entityId("0")
-                .operation(OperationType.INSERT.name())
+                .operation(Operation.CREATE)
                 .build();
 
         // 큐가 비어있는지 확인
@@ -204,7 +214,7 @@ class BlockingQueueLoggingStrategyTest {
 
         // when
         TestEntity entity = new TestEntity(1L, "test");
-        strategy.logChange(entity, null, OperationType.DELETE);
+        strategy.logChange(entity, null, Operation.DELETE);
 
         // then
         assertThat(logQueue.size()).isEqualTo(1); // 큐가 가득 차서 새로운 엔트리가 추가되지 않음
@@ -217,7 +227,7 @@ class BlockingQueueLoggingStrategyTest {
     void flushBatch_ShouldHandleRepositoryError() {
         // given
         List<LogEntry> entries = List.of(
-                LogEntry.builder().entityName("Test1").entityId("1").operation(OperationType.INSERT.name()).build());
+                LogEntry.builder().entityName("Test1").entityId("1").operation(Operation.CREATE).build());
         ConcurrentLinkedQueue<LogEntry> batchQueue = (ConcurrentLinkedQueue<LogEntry>) ReflectionTestUtils
                 .getField(strategy, "batchQueue");
         entries.forEach(batchQueue::add);

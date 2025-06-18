@@ -1,6 +1,6 @@
 package com.pandaterry.concurrent_entity_change_logger.core.infrastructure.storage;
 
-import com.pandaterry.concurrent_entity_change_logger.core.domain.entity.LogEntry;
+import com.pandaterry.concurrent_entity_change_logger.core.domain.LogEntry;
 import java.io.IOException;
 
 public interface LogStorage {

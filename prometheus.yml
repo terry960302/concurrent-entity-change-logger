@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 5s   # 수집 주기 (기본은 15s, 실험 목적이면 더 짧게)
+
+scrape_configs:
+
+  # 1. Prometheus 자체 메트릭 수집
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 2. Node Exporter (OS 자원: CPU, 메모리, 디스크, 네트워크)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']   # Docker Compose의 서비스 이름 기반
+
+  # 3. Spring Boot 앱 (Micrometer + Actuator)
+  - job_name: 'app'
+    metrics_path: '/actuator/prometheus'  # Micrometer가 노출하는 메트릭 endpoint
+    static_configs:
+      - targets: ['host.docker.internal:8080']
