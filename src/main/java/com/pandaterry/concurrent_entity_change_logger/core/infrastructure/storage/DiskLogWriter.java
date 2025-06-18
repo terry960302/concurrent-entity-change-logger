@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DiskLogWriter implements LogStorage {
     private static final int BUFFER_SIZE = 8192;
     private static final String LOG_FILE_PATH = "logs/entity-changes.log";
-    private static final String CHECKPOINT_FILE = "logs/checkpoints/checkpoint.json";
+    private static final String CHECKPOINT_FILE = "checkpoint.json";
     private static final String BACKUP_SUFFIX = ".backup";
 
     private final ObjectMapper objectMapper;
@@ -51,7 +51,7 @@ public class DiskLogWriter implements LogStorage {
         try{
             this.lock = channel.tryLock(0L, Long.MAX_VALUE, false);
         }catch (OverlappingFileLockException e){
-            throw new RuntimeException("JVM에서 이미 락이 걸려있어서 파일 락을 획득할 수 없습니다. " + e);
+            throw new RuntimeException("JVM 에서 이미 락이 걸려있어서 파일 락을 획득할 수 없습니다. " + e);
         }
         if (lock == null) {
             throw new IOException("다른 프로세스가 락을 갖고 있어서 락을 획득할 수 없습니다.");

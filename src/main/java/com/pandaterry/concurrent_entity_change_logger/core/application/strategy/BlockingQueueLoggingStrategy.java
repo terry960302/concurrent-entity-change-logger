@@ -27,8 +27,6 @@ public class BlockingQueueLoggingStrategy implements LoggingStrategy {
     private final LogStorage logStorage;
     private final MicrometerLogMetricsRecorder metrics;
 
-//    private final LogStorage logStorage;
-
     private BlockingQueue<LogEntry> logQueue;
     private ExecutorService logProcessorPool;
 

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class EntityChangeListener
-        implements PostUpdateEventListener, PostDeleteEventListener, PostInsertEventListener {
+        implements PostCommitInsertEventListener, PostCommitDeleteEventListener, PostCommitUpdateEventListener {
     private final LoggingStrategy loggingStrategy;
     private final EntityLoggingProperties loggingProperties;
     private final EntityStateCopier stateCopier;
@@ -44,6 +44,21 @@ public class EntityChangeListener
 
     @Override
     public boolean requiresPostCommitHandling(EntityPersister persister) {
-        return false;
+        return true;
+    }
+
+    @Override
+    public void onPostDeleteCommitFailed(PostDeleteEvent event) {
+
+    }
+
+    @Override
+    public void onPostInsertCommitFailed(PostInsertEvent event) {
+
+    }
+
+    @Override
+    public void onPostUpdateCommitFailed(PostUpdateEvent event) {
+
     }
 }
